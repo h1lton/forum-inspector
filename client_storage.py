@@ -5,6 +5,8 @@ import flet as ft
 
 
 class Keys(StrEnum):
+    """Ключи в клиентском хранилище"""
+
     last_query = auto()
     cookie = auto()
 
@@ -22,9 +24,6 @@ class ClientStorage:
 
     def remove(self, key: Keys):
         return self._page.client_storage.remove(self._key_prefix + key.name)
-
-    def get_keys(self):
-        return self._page.client_storage.remove(self._key_prefix)
 
     def clear(self):
         for key in Keys:
