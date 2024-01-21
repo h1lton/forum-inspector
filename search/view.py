@@ -1,18 +1,17 @@
 import flet as ft
 
+from backend import Backend
 from client_storage import ClientStorage, Keys
 from controls.loading import Loading
 from .field import SearchField
-from .result import Result
-from search_driver import SearchDriver
 
 
 class SearchView(ft.UserControl):
-    def __init__(self, driver: SearchDriver, client_storage: ClientStorage):
+    def __init__(self, client_storage: ClientStorage):
         super().__init__()
-        self.driver = driver
         self.client_storage = client_storage
         self.last_query = self.client_storage.get(Keys.last_query)
+        self.backend = Backend(client_storage=client_storage)
 
     def build(self):
         self.expand = 1
@@ -75,13 +74,8 @@ class SearchView(ft.UserControl):
 
         self.client_storage.set(Keys.last_query, query)
 
-        self.results.controls = [
-            Result(index=index + 1, **result_kwargs)
-            for index, result_kwargs in enumerate(self.driver.search(query))
-        ]
+        self.results.controls = self.backend.search(query)
 
         self.loading.visible = self.field.disabled = False
         self.results.visible = True
         self.update()
-
-        self.driver.open_search()

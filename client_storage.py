@@ -5,8 +5,8 @@ import flet as ft
 
 
 class Keys(StrEnum):
-    driver_path = auto()
     last_query = auto()
+    cookie = auto()
 
 
 class ClientStorage:
