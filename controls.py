@@ -379,27 +379,6 @@ class WindowTitleBar(ft.Row):
             await self.btn_maximize.current.update_async()
 
 
-class PopupColorItem(ft.PopupMenuItem):
-    def __init__(self, color, name, config: Config):
-        super().__init__()
-        self.content = ft.Row(
-            controls=[
-                ft.Icon(name=ft.icons.COLOR_LENS_OUTLINED, color=color),
-                ft.Text(name),
-            ],
-        )
-        self.on_click = self.seed_color_changed
-        self.data = color
-        self.config = config
-
-    async def seed_color_changed(self, e):
-        self.config.color_scheme_seed = self.data
-        self.page.theme = self.page.dark_theme = ft.theme.Theme(
-            color_scheme_seed=self.data
-        )
-        await self.page.update_async()
-
-
 class MenuColorItem(ft.MenuItemButton):
     def __init__(self, color, name, config: Config):
         super().__init__()
