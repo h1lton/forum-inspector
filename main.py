@@ -91,10 +91,9 @@ class App:
                 expand=1,
                 margin=8,
                 shadow=ft.BoxShadow(
-                    spread_radius=-1,
                     blur_radius=8,
                     blur_style=ft.ShadowBlurStyle.OUTER,
-                    color=ft.colors.with_opacity(0.5, ft.colors.SHADOW),
+                    color=ft.colors.with_opacity(0.2, ft.colors.SHADOW),
                 ),
             )
         )
