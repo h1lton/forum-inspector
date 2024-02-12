@@ -381,15 +381,17 @@ class WindowTitleBar(ft.Row):
 
 class MenuColorItem(ft.MenuItemButton):
     def __init__(self, color, name, config: Config):
-        super().__init__()
-        self.content = ft.Row(
-            controls=[
-                ft.Icon(name=ft.icons.COLOR_LENS_OUTLINED, color=color),
-                ft.Text(name),
-            ],
+        super().__init__(
+            content=ft.Row(
+                controls=[
+                    ft.Icon(name=ft.icons.COLOR_LENS_OUTLINED, color=color),
+                    ft.Text(name),
+                ],
+            ),
+            on_click=self.seed_color_changed,
+            data=color,
         )
-        self.on_click = self.seed_color_changed
-        self.data = color
+
         self.config = config
 
     async def seed_color_changed(self, e):
