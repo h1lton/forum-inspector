@@ -1,43 +1,108 @@
 import atexit
+from asyncio import sleep
 
 import flet as ft
+from flet_core import colors, icons
 
-from client_storage import ClientStorage
-from search.view import SearchView
+from config import Config
+from controls import SearchView, WindowTitleBar, NavigationMenu
+from views import View
 
 
 class App:
     def __init__(self):
-        self.client_storage: ClientStorage | None = None
-        self.page: ft.Page | None = None
+        self.config = Config()
+        atexit.register(self.destroy)
 
-    def start_up(self, page: ft.Page):
-        self.page = page
-
+    async def start_up(self, page: ft.Page):
         page.title = "Forum Inspector"
-        page.window_width = page.window_min_width = 550
-        page.window_height = page.window_min_height = 800
-        page.vertical_alignment = ft.MainAxisAlignment.CENTER
-        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        page.window_width = 634
+        page.window_height = 816
+        page.window_frameless = True
+        page.window_bgcolor = ft.colors.TRANSPARENT
+        page.bgcolor = ft.colors.TRANSPARENT
+        page.window_resizable = False
         page.padding = 0
         page.spacing = 0
-        page.window_center()
+        page.theme_mode = self.config.theme_mode
+        page.theme = page.dark_theme = ft.Theme(
+            color_scheme_seed=self.config.color_scheme_seed
+        )
 
-        self.client_storage = ClientStorage(page, page.title)
+        await page.window_center_async()
 
-        self.loading_app()
+        self.views = [
+            View(
+                name="search",
+                view=SearchView(self.config),
+                icon=icons.SEARCH_ROUNDED,
+            ),
+            View(
+                name="follow",
+                view=ft.Container(
+                    ft.Text("Отслеживаемые"),
+                    alignment=ft.alignment.center,
+                    width=550,
+                ),
+                icon=icons.BOOKMARK_BORDER_ROUNDED,
+                selected_icon=icons.BOOKMARK_ROUNDED,
+            ),
+            View(
+                name="check",
+                view=ft.Container(
+                    ft.Text("Отложенные"),
+                    alignment=ft.alignment.center,
+                    width=550,
+                ),
+                icon=icons.ACCESS_TIME_ROUNDED,
+                selected_icon=icons.ACCESS_TIME_FILLED_ROUNDED,
+            ),
+        ]
+        view_container = ft.Container(
+            self.views[0].view,
+            bgcolor=colors.with_opacity(0.1, colors.OUTLINE),
+            border_radius=ft.border_radius.only(top_left=10),
+        )
 
-    def loading_app(self):
-        """Загружает приложение."""
+        await sleep(0.075)
 
-        self.search_view = SearchView(self.client_storage)
-        self.page.add(self.search_view)
+        await page.add_async(
+            ft.Container(
+                content=ft.Column(
+                    [
+                        WindowTitleBar(page, maximizable=False),
+                        ft.Row(
+                            [
+                                NavigationMenu(
+                                    self.config,
+                                    self.views,
+                                    view_container,
+                                ),
+                                view_container,
+                            ],
+                            expand=1,
+                            spacing=0,
+                        ),
+                    ],
+                    expand=1,
+                    spacing=0,
+                ),
+                bgcolor=ft.colors.BACKGROUND,
+                expand=1,
+                margin=8,
+                shadow=ft.BoxShadow(
+                    spread_radius=-1,
+                    blur_radius=8,
+                    blur_style=ft.ShadowBlurStyle.OUTER,
+                    color=ft.colors.with_opacity(0.5, ft.colors.SHADOW),
+                ),
+            )
+        )
 
     def destroy(self):
-        print("destroy")
+        self.config.save_to_file()
 
 
 if __name__ == "__main__":
     app = App()
-    atexit.register(app.destroy)
     ft.app(target=app.start_up, view=ft.FLET_APP_HIDDEN)

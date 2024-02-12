@@ -1,12 +1,17 @@
+import asyncio
 import dataclasses
 import re
 import time
-import requests
+from asyncio import sleep
 
 from datetime import timedelta
-from Crypto.Cipher import AES
 
-from client_storage import ClientStorage, Keys
+import aiohttp.cookiejar
+from Crypto.Cipher import AES
+from aiohttp import ClientSession
+from yarl._url import URL
+
+from config import Config
 
 
 class ReactLabBypassException(Exception):
@@ -22,8 +27,8 @@ class ReactLabBypass:
     :param cookie_expires_at конечный срок действия cookie
     """
 
-    site: str
-    client_storage: ClientStorage
+    config: Config
+    session: ClientSession
     cookie_expires_at: float = 0
     cookie_name: str | None = None
     cookie_value: str | None = None
@@ -38,17 +43,21 @@ class ReactLabBypass:
         """Проверка валидности cookie"""
         return self.cookie_name and self.cookie_value and not self.is_cookie_expired
 
-    def get_cookie_from_storage(self):
-        return self.client_storage.get(Keys.cookie)
-
     def set_cookie_in_storage(self, value: dict):
-        self.client_storage.set(Keys.cookie, value)
+        self.config.cookie = value
 
-    def __get_cookie(self, html) -> dict[str]:
+    def _set_cookie(self):
+        """Устанавливает имеющиеся куки в сессию"""
+        self.session.cookie_jar.update_cookies(
+            {self.cookie_name: self.cookie_value}, self.session._base_url
+        )
+
+    async def _get_cookie(self) -> None:
         """
-        Расшифровывает данные на странице сохраняя и возвращая cookie в виде словаря
+        Запрашивает и расшифровывает данные на странице сохраняя их в конфиг и класс.
         """
-        line = html.splitlines()[-8]
+        response = await self.session.get("/")
+        line = (await response.text()).splitlines()[-8]
         line = re.sub(r"\\x([A-F0-9]{2})", lambda m: chr(int(m.group(1), 16)), line)
 
         keys = re.findall(r"[a-f0-9]{32}", line)
@@ -63,34 +72,26 @@ class ReactLabBypass:
         cipher = bytes.fromhex(keys[2])
 
         self.cookie_value = bytes.hex(AES.new(key, AES.MODE_CBC, iv=iv).decrypt(cipher))
-        self.cookie_expires_at = time.time() + timedelta(days=399).total_seconds()
-        self.set_cookie_in_storage(
-            {
-                "name": self.cookie_name,
-                "value": self.cookie_value,
-                "expires": self.cookie_expires_at,
-            }
-        )
-        return {self.cookie_name: self.cookie_value}
+        self.cookie_expires_at = time.time() + timedelta(days=365).total_seconds()
+        self.config.cookie = {
+            "name": self.cookie_name,
+            "value": self.cookie_value,
+            "expires": self.cookie_expires_at,
+        }
 
-    def get_cookie(self) -> dict[str]:
+    async def set_cookie(self) -> None:
         """
-        Возвращает cookie в виде словаря
-        Если cookie были получены ранее проверяет их на валидность,
-        если валидны, то возвращает их, если нет, то запрашивает новые
+        Устанавливает имеющиеся куки в сессию если они валидны, если нет запрашивает новые.
         """
-        if self.is_cookie_valid:
-            return {self.cookie_name: self.cookie_value}
 
-        cookie_in_storage = self.get_cookie_from_storage()
+        if not self.is_cookie_valid:
+            if self.config.cookie:
+                self.cookie_name = self.config.cookie["name"]
+                self.cookie_value = self.config.cookie["value"]
+                self.cookie_expires_at = self.config.cookie["expires"]
+                if not self.is_cookie_valid:
+                    await self._get_cookie()
+            else:
+                await self._get_cookie()
 
-        if cookie_in_storage:
-            self.cookie_name = cookie_in_storage["name"]
-            self.cookie_value = cookie_in_storage["value"]
-            self.cookie_expires_at = cookie_in_storage["expires"]
-
-        if self.is_cookie_valid:
-            return {self.cookie_name: self.cookie_value}
-
-        response = requests.get(self.site)
-        return self.__get_cookie(response.text)
+        self._set_cookie()
