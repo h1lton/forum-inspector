@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75.4 84.2">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #2e7d32;
+      }
+
+      .cls-2 {
+        fill: #1e88e5;
+      }
+
+      .cls-3 {
+        fill: #fa7b17;
+      }
+
+      .cls-4 {
+        fill: #fbc02d;
+      }
+
+      .cls-5 {
+        fill: #e53935;
+      }
+
+      .cls-6 {
+        fill: #4caf50;
+      }
+    </style>
+  </defs>
+  <path class="cls-6" d="m63.2,0H12.2C5.5,0,0,5.5,0,12.2s5.5,12.2,12.2,12.2h51V0Z"/>
+  <circle id="Green" class="cls-1" cx="63.2" cy="12.2" r="12.2"/>
+  <path class="cls-4" d="m32.2,31H12.2v24.4h19.9c6.7,0,12.2-5.5,12.2-12.2s-5.4-12.2-12.1-12.2Z"/>
+  <path class="cls-5" d="m0,72c0,6.7,5.5,12.2,12.2,12.2s12.2-5.5,12.2-12.2h0v-28.8H0v28.8Z"/>
+  <path id="Orange" class="cls-3" d="m12.2,31c-6.7,0-12.2,5.5-12.2,12.2s5.5,12.2,12.2,12.2h12.2v-12.2c0-6.7-5.5-12.2-12.2-12.2Z"/>
+  <path id="Blue" class="cls-2" d="m75.4,43.2c0-6.7-5.5-12.2-12.2-12.2s-12.2,5.5-12.2,12.2h0v28.8c0,6.7,5.5,12.2,12.2,12.2s12.2-5.5,12.2-12.2h0v-28.8Z"/>
+</svg>

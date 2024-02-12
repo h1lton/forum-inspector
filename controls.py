@@ -297,22 +297,21 @@ class WindowTitleBar(ft.Row):
                             [
                                 Container(
                                     ft.Image(
-                                        src="favicon.ico",
-                                        width=25,
-                                        height=25,
+                                        src="logo.svg",
+                                        color=colors.OUTLINE,
                                     ),
-                                    width=68,
+                                    width=30,
+                                    height=30,
+                                    padding=7,
                                 ),
                                 ft.Text(
                                     self.page.title,
-                                    size=13,
+                                    color=colors.OUTLINE,
                                     theme_style=ft.TextThemeStyle.TITLE_SMALL,
-                                    opacity=0.5,
                                 ),
                             ],
                             spacing=0,
                         ),
-                        # padding=padding.only(left=19),
                     ),
                     expand=True,
                 ),
