@@ -1,4 +1,5 @@
 import atexit
+import locale
 from asyncio import sleep
 
 import flet as ft
@@ -11,6 +12,7 @@ from views import View
 
 class App:
     def __init__(self):
+        locale.setlocale(locale.LC_TIME, "ru_RU")
         self.config = Config()
         atexit.register(self.destroy)
 
