@@ -28,7 +28,8 @@ class App:
         page.spacing = 0
         page.theme_mode = self.config.theme_mode
         page.theme = page.dark_theme = ft.Theme(
-            color_scheme_seed=self.config.color_scheme_seed
+            color_scheme_seed=self.config.color_scheme_seed,
+            scrollbar_theme=ft.ScrollbarTheme(cross_axis_margin=5),
         )
 
         await page.window_center_async()

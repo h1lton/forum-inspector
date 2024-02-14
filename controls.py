@@ -144,7 +144,7 @@ class SearchView(UserControl):
         self.results = ft.Column(
             expand=1,
             spacing=0,
-            scroll=ft.ScrollMode.AUTO,
+            scroll=ft.ScrollMode.ALWAYS,
             on_scroll_interval=0,
             on_scroll=self.on_scroll,
         )
@@ -165,7 +165,7 @@ class SearchView(UserControl):
                         value=self.config.last_query,
                         on_submit=self.search,
                         hint_text="Поиск...",
-                        prefix=Container(width=30),
+                        prefix=Container(width=25),
                         content_padding=0,
                         text_size=16,
                         hint_style=ft.TextStyle(
@@ -179,7 +179,7 @@ class SearchView(UserControl):
                         filled=True,
                         on_focus=self.on_focus_field,
                     ),
-                    margin=margin.only(top=10, left=10, right=10),
+                    margin=margin.only(left=10, top=10, right=15),
                 ),
                 Stack(
                     [
