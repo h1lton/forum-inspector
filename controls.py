@@ -114,8 +114,8 @@ class SearchResult(UserControl):
                     ),
                     padding=padding.only(
                         left=40,
-                        top=10,
-                        bottom=10,
+                        top=15,
+                        bottom=15,
                     ),
                     on_click=self.launch_url,
                 ),
