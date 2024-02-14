@@ -141,10 +141,9 @@ class SearchView(UserControl):
         self.is_loading_items = False
         self.next_page = None
 
-        self.results = ft.Column(
+        self.results = ft.ListView(
             expand=1,
             spacing=0,
-            scroll=ft.ScrollMode.ALWAYS,
             on_scroll_interval=0,
             on_scroll=self.on_scroll,
         )
