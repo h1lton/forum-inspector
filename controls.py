@@ -138,13 +138,17 @@ class SearchView(UserControl):
 
         self.config = config
         self.parser = Parser(config)
+        self.is_loading_items = False
+        self.next_page = None
 
-        self.field = Ref[TextField]()
         self.results = ft.Column(
             expand=1,
             spacing=0,
             scroll=ft.ScrollMode.AUTO,
+            on_scroll_interval=0,
+            on_scroll=self.on_scroll,
         )
+        self.field = Ref[TextField]()
         self.loading = Ref[Container]()
         self.error_container = Ref[Container]()
         self.error_text = Ref[ft.Text]()
@@ -222,6 +226,37 @@ class SearchView(UserControl):
             horizontal_alignment=CrossAxisAlignment.CENTER,
         )
 
+    async def on_scroll(self, e: ft.OnScrollEvent):
+        count_results = len(self.results.controls)
+
+        if (
+            e.event_type == "start"
+            and e.pixels > e.max_scroll_extent * (count_results - 4) / count_results
+            and not self.is_loading_items
+            and self.next_page
+        ):
+            self.is_loading_items = True
+
+            self.results.controls.append(
+                Container(
+                    ft.ProgressRing(height=20, width=20, stroke_width=3),
+                    alignment=ft.alignment.center,
+                    margin=margin.only(top=10, bottom=10),
+                )
+            )
+            await self.results.update_async()
+
+            self.results.controls.pop()
+
+            self.next_page, generator = await self.parser.load_data(
+                "/" + self.next_page
+            )
+            for result_data in generator:
+                self.results.controls.append(SearchResult(**result_data))
+
+            await self.update_async()
+            self.is_loading_items = False
+
     async def on_focus_field(self, e):
         if self.error_container.current.visible:
             self.error_container.current.opacity = 0
@@ -244,13 +279,14 @@ class SearchView(UserControl):
 
         self.loading.current.visible = self.field.current.disabled = True
         self.results.visible = False
-        self.results.controls = []
+        await self.results.clean_async()
+        self.is_loading_items = False
         await self.update_async()
 
         self.config.last_query = query
 
-        await sleep(0)
-        for result_data in await self.parser.search(query):
+        self.next_page, generator = await self.parser.search(query)
+        for result_data in generator:
             self.results.controls.append(SearchResult(**result_data))
 
         self.loading.current.visible = self.field.current.disabled = False

@@ -55,18 +55,26 @@ class Parser:
             }
 
     async def search(self, query: str):
-        await self.rlb.set_cookie()
         data = {
             "keywords": query,
             "date": None,
             "order": "date",
             "type": "post",
         }
-        response = await self.session.post(
-            "/search/search",
-            data=data,
+        return await self.load_data("/search/search", data)
+
+    async def load_data(self, url, data=None):
+        await self.rlb.set_cookie()
+        response = (
+            await self.session.post(url, data=data)
+            if data
+            else await self.session.get(url)
         )
 
         soup = BeautifulSoup(await response.text(), "html.parser")
 
-        return self.generator_data(soup)
+        next_page = soup.find("a", class_="nextLink")
+        if next_page:
+            next_page = next_page["href"]
+
+        return next_page, self.generator_data(soup)
