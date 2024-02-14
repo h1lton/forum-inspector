@@ -24,28 +24,6 @@ from parser import Parser
 from views import View
 
 
-class Loading(UserControl):
-    def __init__(self, status: str = "Загрузка", visible: bool = True):
-        super().__init__(visible=visible)
-        self.status = status
-        self.status_field = ft.Text(self.status, weight=FontWeight.W_500, size=16)
-
-    def build(self):
-        return ft.Column(
-            [
-                self.status_field,
-                ft.Image("loading.gif", height=391 / 5, width=498 / 5),
-                # ft.ProgressRing(),
-            ],
-            horizontal_alignment=CrossAxisAlignment.CENTER,
-            alignment=MainAxisAlignment.CENTER,
-        )
-
-    async def update_status(self, message):
-        self.status_field.value = message
-        await self.update_async()
-
-
 class ResultPrefix(ft.Container):
     def __init__(self, name: str):
         super().__init__()
@@ -202,7 +180,7 @@ class SearchView(UserControl):
                 Stack(
                     [
                         Container(
-                            Loading("Поиск..."),
+                            ft.ProgressRing(),
                             alignment=ft.alignment.center,
                             ref=self.loading,
                             visible=False,
