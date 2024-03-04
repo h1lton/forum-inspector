@@ -3,11 +3,14 @@ import locale
 from asyncio import sleep
 
 import flet as ft
-from flet_core import colors, icons
+from flet_core import colors
 
-from config import Config
-from controls import SearchView, WindowTitleBar, NavigationMenu
-from views import View
+import constants
+from src.check.controls import CheckView
+from src.config import Config
+from src.controls import WindowTitleBar, NavigationMenu
+from src.follow.controls import FollowView
+from src.search.controls import SearchView
 
 
 class App:
@@ -18,8 +21,8 @@ class App:
 
     async def start_up(self, page: ft.Page):
         page.title = "Forum Inspector"
-        page.window_width = 634
-        page.window_height = 816
+        page.window_width = constants.PAGE_WIDTH
+        page.window_height = constants.PAGE_HEIGHT
         page.window_frameless = True
         page.window_bgcolor = ft.colors.TRANSPARENT
         page.bgcolor = ft.colors.TRANSPARENT
@@ -34,35 +37,10 @@ class App:
 
         await page.window_center_async()
 
-        self.views = [
-            View(
-                name="search",
-                view=SearchView(self.config),
-                icon=icons.SEARCH_ROUNDED,
-            ),
-            View(
-                name="follow",
-                view=ft.Container(
-                    ft.Text("Отслеживаемые"),
-                    alignment=ft.alignment.center,
-                    width=550,
-                ),
-                icon=icons.BOOKMARK_BORDER_ROUNDED,
-                selected_icon=icons.BOOKMARK_ROUNDED,
-            ),
-            View(
-                name="check",
-                view=ft.Container(
-                    ft.Text("Отложенные"),
-                    alignment=ft.alignment.center,
-                    width=550,
-                ),
-                icon=icons.ACCESS_TIME_ROUNDED,
-                selected_icon=icons.ACCESS_TIME_FILLED_ROUNDED,
-            ),
-        ]
+        self.views = [SearchView(self.config), FollowView(), CheckView()]
+
         view_container = ft.Container(
-            self.views[0].view,
+            self.views[0],
             bgcolor=colors.with_opacity(0.1, colors.OUTLINE),
             border_radius=ft.border_radius.only(top_left=10),
         )
@@ -92,9 +70,9 @@ class App:
                 ),
                 bgcolor=ft.colors.BACKGROUND,
                 expand=1,
-                margin=8,
+                margin=constants.SHADOW_SIZE,
                 shadow=ft.BoxShadow(
-                    blur_radius=8,
+                    blur_radius=constants.SHADOW_SIZE,
                     blur_style=ft.ShadowBlurStyle.OUTER,
                     color=ft.colors.with_opacity(0.2, ft.colors.SHADOW),
                 ),
@@ -107,4 +85,8 @@ class App:
 
 if __name__ == "__main__":
     app = App()
-    ft.app(target=app.start_up, view=ft.FLET_APP_HIDDEN)
+    ft.app(
+        target=app.start_up,
+        view=ft.FLET_APP_HIDDEN,
+        assets_dir="../assets",
+    )

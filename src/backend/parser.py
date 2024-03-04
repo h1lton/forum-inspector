@@ -3,8 +3,8 @@ from datetime import datetime
 import aiohttp
 from bs4 import BeautifulSoup, Tag
 
-from config import Config
-from reaclab_bypass import ReactLabBypass
+from src.config import Config
+from src.backend.reaclab_bypass import ReactLabBypass
 
 
 class Parser:

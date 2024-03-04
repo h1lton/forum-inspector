@@ -1,17 +1,12 @@
-import asyncio
 import dataclasses
 import re
 import time
-from asyncio import sleep
-
 from datetime import timedelta
 
-import aiohttp.cookiejar
 from Crypto.Cipher import AES
 from aiohttp import ClientSession
-from yarl._url import URL
 
-from config import Config
+from src.config import Config
 
 
 class ReactLabBypassException(Exception):

@@ -1,0 +1,4 @@
+from src.constants import *
+
+FIELD_PREFIX = 25
+RESULT_LEFT_PADDING = MAIN_PADDING + FIELD_PREFIX
